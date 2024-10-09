@@ -1,12 +1,12 @@
 {
   "files": {
     "main.css": "/TGWallet_FrontEnd/static/css/main.a0096d81.css",
-    "main.js": "/TGWallet_FrontEnd/static/js/main.878dd746.js",
+    "main.js": "/TGWallet_FrontEnd/static/js/main.0bb522e3.js",
     "static/js/206.bf51703e.chunk.js": "/TGWallet_FrontEnd/static/js/206.bf51703e.chunk.js",
     "index.html": "/TGWallet_FrontEnd/index.html"
   },
   "entrypoints": [
     "static/css/main.a0096d81.css",
-    "static/js/main.878dd746.js"
+    "static/js/main.0bb522e3.js"
   ]
 }
