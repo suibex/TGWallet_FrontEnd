@@ -8,7 +8,10 @@ export function WalletConnectStuff(){
 
   useEffect(()=>{
     if(wallet){
+      console.log("Wallet Connected:", wallet);
       setWalletAddress(wallet.account.address);
+    } else {
+      console.log("No wallet found");
     }
   },[wallet]);
   console.log(wallet)
@@ -37,6 +40,7 @@ function App() {
 
   return (
     <TonConnectUIProvider manifestUrl="https://suibex.github.io/TGWallet_FrontEnd/tonconnect-manifest.json">
+ 
     <div className="App">
       <header className="App-header">
 
