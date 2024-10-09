@@ -36,7 +36,7 @@ function App() {
 
 
   return (
-    <TonConnectUIProvider manifestUrl="http://localhost:3000/tonconnect-manifest.json">
+    <TonConnectUIProvider manifestUrl="https://suibex.github.io/TGWallet_FrontEnd/tonconnect-manifest.json">
     <div className="App">
       <header className="App-header">
 
