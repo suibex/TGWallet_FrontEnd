@@ -13,10 +13,13 @@ import React, {useMemo } from 'react';
 import { ConnectionProvider, WalletProvider,useWallet } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork} from '@solana/wallet-adapter-base';
 import { PhantomWalletAdapter, SolflareWalletAdapter, UnsafeBurnerWalletAdapter } from '@solana/wallet-adapter-wallets';
+import {CustomPhantomAdapter} from './custom_adapter'
 import {
+
     WalletModalProvider,
     WalletDisconnectButton,
-    WalletMultiButton
+    WalletMultiButton,
+    WalletConnectButton
 } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from '@solana/web3.js';
 
@@ -53,6 +56,9 @@ const wallkit = createAppKit({
     analytics: true // Optional - defaults to your Cloud configuration
   }
 })
+
+
+
 export const SolanaWallet = () => {
   const { publicKey, connect, disconnect, connected } = useWallet();
 
@@ -64,7 +70,9 @@ export const SolanaWallet = () => {
   }, [connected, publicKey]);
 
   return (
-    <div><WalletMultiButton />
+    <div>
+      <WalletMultiButton></WalletMultiButton>
+
     </div>
   );
 };
@@ -103,7 +111,6 @@ export function ConnectTelegramWallet(){
 
   useEffect(()=>{
     if(wallet){
-      
       setWalletAddress(wallet.account.address);
       document.getElementById("idg").textContent = wallet.account.address;
     } else {
@@ -114,7 +121,6 @@ export function ConnectTelegramWallet(){
   
   return (
      <div> 
-    
        <TonConnectButton/>
       </div>
   );
@@ -126,12 +132,14 @@ function App() {
 
   const sol_network = WalletAdapterNetwork.Testnet;
   const sol_endpoint = useMemo(() => clusterApiUrl(sol_network), [sol_network]);
-  const sol_wallets = useMemo(() => [new UnsafeBurnerWalletAdapter(), new PhantomWalletAdapter(), new SolflareWalletAdapter()], [sol_network]);
+  const sol_wallets = useMemo(() => [ new CustomPhantomAdapter({
+    rpcUrl:"phantom://"
+  })], [sol_network]);
 
   return (
     <TonConnectUIProvider manifestUrl="https://suibex.github.io/TGWallet_FrontEnd/tonconnect-manifest.json">
       <ConnectionProvider endpoint={sol_endpoint}>
-      <WalletProvider wallets={sol_wallets} autoConnect>
+      <WalletProvider wallets={sol_wallets} >
         <WalletModalProvider>
             <div className="App">
               <header className="App-header">
@@ -141,6 +149,8 @@ function App() {
               <WalletConnect/>
               <br></br>
               <SolanaWallet/>
+              <br></br>
+           
               </header>
 
             
