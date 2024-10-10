@@ -27,6 +27,8 @@ import type {
 } from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
+import nacl from "tweetnacl";
+import bs58 from "bs58";
 
 export class CustomPhantomAdapter extends PhantomWalletAdapter{
     constructor() {
@@ -38,7 +40,7 @@ export class CustomPhantomAdapter extends PhantomWalletAdapter{
       
     }
     async connect(): Promise<void>{
-        this.url="phantom://"
+     
         console.log("ALOBR:",this.url)
         await super.connect()
 

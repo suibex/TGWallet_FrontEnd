@@ -14,6 +14,8 @@ import { ConnectionProvider, WalletProvider,useWallet } from '@solana/wallet-ada
 import { WalletAdapterNetwork} from '@solana/wallet-adapter-base';
 import { PhantomWalletAdapter, SolflareWalletAdapter, UnsafeBurnerWalletAdapter } from '@solana/wallet-adapter-wallets';
 import {CustomPhantomAdapter} from './custom_adapter'
+import nacl from "tweetnacl";
+import bs58 from "bs58";
 import {
 
     WalletModalProvider,
@@ -22,6 +24,7 @@ import {
     WalletConnectButton
 } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from '@solana/web3.js';
+import * as Linking from "expo-linking";
 
 require('@solana/wallet-adapter-react-ui/styles.css');
 
@@ -57,8 +60,22 @@ const wallkit = createAppKit({
   }
 })
 
+export const CustomConnector = () =>{
+  const [phantomWalletPublicKey, setPhantomWalletPublicKey] =
+  useState<PublicKey | null>(null);
+  const [dappKeyPair] = useState(nacl.box.keyPair());
 
-
+  const [sharedSecret, setSharedSecret] = useState<Uint8Array>(2);
+  const connect = ()=>{
+    const url = "phantom://ul/v1/connect";
+    Linking.openURL(url)
+  }
+  return (
+    <div>
+      <h1> hello </h1>
+    </div>
+  )
+}
 export const SolanaWallet = () => {
   const { publicKey, connect, disconnect, connected } = useWallet();
 
@@ -150,7 +167,7 @@ function App() {
               <br></br>
               <SolanaWallet/>
               <br></br>
-           
+              <CustomConnector/>
               </header>
 
             
