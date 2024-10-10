@@ -22,7 +22,7 @@ const metadata = {
 const networks = [mainnet, arbitrum]
 
 createAppKit({
-  adapters: [wagmiAdapter],
+  adapters: [WagmiAdapter],
   networks,
   projectId,
   metadata,

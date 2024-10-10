@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@babel/preset-react": "^7.25.7",
     "@coinbase/wallet-sdk": "^4.0.3",
+    "@ethersproject/sha2": "^5.7.0",
     "@reown/appkit": "^1.1.0",
     "@reown/appkit-adapter-ethers": "^1.1.0",
     "@reown/appkit-adapter-wagmi": "^1.1.0",
@@ -61,16 +61,24 @@
     "@babel/core": "^7.25.7",
     "@babel/plugin-syntax-import-attributes": "^7.25.7",
     "@babel/preset-env": "^7.25.7",
+    "@babel/preset-react": "^7.25.7",
     "babel-loader": "^9.2.1",
     "babel-preset-gatsby": "^3.13.2",
     "cross-env": "^7.0.3",
-    "gh-pages": "^6.1.1"
+    "css-loader": "^7.1.2",
+    "gh-pages": "^6.1.1",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.95.0",
+    "webpack-cli": "^5.1.4"
   },
   "babel": {
-    "presets": ["@babel/preset-env", "@babel/preset-react"],
-  "plugins": [
-    "@babel/plugin-syntax-import-attributes"
-  ]
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-react"
+    ],
+    "plugins": [
+      "@babel/plugin-syntax-import-attributes"
+    ]
   },
   "homepage": "https://suibex.github.io/TGWallet_FrontEnd"
 }
