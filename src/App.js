@@ -12,7 +12,7 @@ import { useAccount,useConfig } from "wagmi";
 import React, {useMemo } from 'react';
 import { ConnectionProvider, WalletProvider,useWallet } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork} from '@solana/wallet-adapter-base';
-import { PhantomWalletAdapter, UnsafeBurnerWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { PhantomWalletAdapter, SolflareWalletAdapter, UnsafeBurnerWalletAdapter } from '@solana/wallet-adapter-wallets';
 import {
     WalletModalProvider,
     WalletDisconnectButton,
@@ -126,7 +126,7 @@ function App() {
 
   const sol_network = WalletAdapterNetwork.Testnet;
   const sol_endpoint = useMemo(() => clusterApiUrl(sol_network), [sol_network]);
-  const sol_wallets = useMemo(() => [new UnsafeBurnerWalletAdapter()], [sol_network]);
+  const sol_wallets = useMemo(() => [new UnsafeBurnerWalletAdapter(), new PhantomWalletAdapter(), new SolflareWalletAdapter()], [sol_network]);
 
   return (
     <TonConnectUIProvider manifestUrl="https://suibex.github.io/TGWallet_FrontEnd/tonconnect-manifest.json">
