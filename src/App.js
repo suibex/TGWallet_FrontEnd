@@ -3,10 +3,12 @@ import { TonConnectUIProvider, TonConnectButton,useTonAddress,useTonWallet} from
 import {useEffect, useState} from 'react'
 import { createAppKit } from '@reown/appkit/react'
 
-import { WagmiProvider } from 'wagmi'
+import { useConnect, WagmiProvider } from 'wagmi'
 import { arbitrum, mainnet } from '@reown/appkit/networks'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
+import { useAccount,useConfig } from "wagmi";
+
 
 const queryClient = new QueryClient()
 
@@ -21,8 +23,17 @@ const metadata = {
 
 const networks = [mainnet, arbitrum]
 
-createAppKit({
-  adapters: [WagmiAdapter],
+
+const wagmiAdapter = new WagmiAdapter({
+  networks,
+  projectId,
+  ssr: true
+});
+
+const config = wagmiAdapter.wagmiConfig
+
+const wallkit = createAppKit({
+  adapters: [wagmiAdapter],
   networks,
   projectId,
   metadata,
@@ -32,22 +43,28 @@ createAppKit({
 })
 
 
-const wagmiAdapter = new WagmiAdapter({
-  networks,
-  projectId,
-  ssr: true
-});
-
 export function WalletConnect({children}){
-  /*
+  const [waddr,setwaddr] = useState(null);
+
+  const isConnected = useAccount({
+    config,
+  })
+  console.log("CONNECTED:",isConnected)
+  if(isConnected && isConnected.address){
+    document.getElementById("idg").textContent = isConnected.address;
+  }
+  useEffect(()=>{
+    if(isConnected){
+      setwaddr(wallkit.getAddress())
+      console.log("ADDR:",isConnected.address)
+
+    }
+  },[isConnected])
+  
   return (
-    <div>
-      <button class="zmaj">Connect To MetaMask</button>
-    </div>
-  )
-    */return (
-    <WagmiProvider config={wagmiAdapter.wagmiConfig}>
+    <WagmiProvider config={wagmiAdapter.wagmiConfig} use>
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <w3m-button />
   </WagmiProvider>
 )
 }
@@ -60,6 +77,7 @@ export function ConnectTelegramWallet(){
     if(wallet){
       
       setWalletAddress(wallet.account.address);
+      document.getElementById("idg").textContent = wallet.account.address;
     } else {
      
     }
@@ -69,15 +87,6 @@ export function ConnectTelegramWallet(){
   return (
      <div> 
     
-      {wallet ? (
-  <div>
-  <p> Wallet Address: {walletAddress}</p>
-</div>
-      ) : (
-        <div>
-        <p> - </p>
-      </div>
-      )}
        <TonConnectButton/>
       </div>
   );
@@ -93,7 +102,7 @@ function App() {
  
     <div className="App">
       <header className="App-header">
-      
+      <p class="idg" id="idg">-</p> 
       <ConnectTelegramWallet/>
       <br></br>
       <WalletConnect/>
