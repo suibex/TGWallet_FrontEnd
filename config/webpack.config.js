@@ -347,6 +347,7 @@ module.exports = function (webpackEnv) {
         ]),
       ],
     },
+ 
     module: {
       strictExportPresence: true,
       rules: [

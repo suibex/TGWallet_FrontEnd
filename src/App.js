@@ -1,3 +1,5 @@
+/* global __DEV__ */
+
 import './App.css';
 import { TonConnectUIProvider, TonConnectButton,useTonAddress,useTonWallet} from '@tonconnect/ui-react';
 import {useEffect, useState} from 'react'
@@ -8,12 +10,12 @@ import { arbitrum, mainnet } from '@reown/appkit/networks'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { useAccount,useConfig } from "wagmi";
-
+import { CustomConnector } from './CustomConnector';
 import React, {useMemo } from 'react';
 import { ConnectionProvider, WalletProvider,useWallet } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork} from '@solana/wallet-adapter-base';
 import { PhantomWalletAdapter, SolflareWalletAdapter, UnsafeBurnerWalletAdapter } from '@solana/wallet-adapter-wallets';
-import {CustomPhantomAdapter} from './custom_adapter'
+
 import nacl from "tweetnacl";
 import bs58 from "bs58";
 import {
@@ -24,7 +26,12 @@ import {
     WalletConnectButton
 } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from '@solana/web3.js';
-import * as Linking from "expo-linking";
+import { Buffer } from "buffer";
+import {
+  PublicKey,
+} from "@solana/web3.js";
+
+const solanaWeb3 = require('@solana/web3.js');
 
 require('@solana/wallet-adapter-react-ui/styles.css');
 
@@ -60,22 +67,6 @@ const wallkit = createAppKit({
   }
 })
 
-export const CustomConnector = () =>{
-  const [phantomWalletPublicKey, setPhantomWalletPublicKey] =
-  useState<PublicKey | null>(null);
-  const [dappKeyPair] = useState(nacl.box.keyPair());
-
-  const [sharedSecret, setSharedSecret] = useState<Uint8Array>(2);
-  const connect = ()=>{
-    const url = "phantom://ul/v1/connect";
-    Linking.openURL(url)
-  }
-  return (
-    <div>
-      <h1> hello </h1>
-    </div>
-  )
-}
 export const SolanaWallet = () => {
   const { publicKey, connect, disconnect, connected } = useWallet();
 
@@ -123,6 +114,7 @@ export function WalletConnect({children}){
 }
 
 export function ConnectTelegramWallet(){
+
   const wallet = useTonWallet();   
   const [walletAddress, setWalletAddress] = useState(null); 
 
@@ -135,6 +127,8 @@ export function ConnectTelegramWallet(){
     }
   },[wallet]);
   console.log(wallet)
+
+
   
   return (
      <div> 
@@ -143,24 +137,60 @@ export function ConnectTelegramWallet(){
   );
 
 }
+function getCookie(cname) {
+  let name = cname + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(';');
+  for(let i = 0; i <ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
 
 
 function App() {
 
   const sol_network = WalletAdapterNetwork.Testnet;
   const sol_endpoint = useMemo(() => clusterApiUrl(sol_network), [sol_network]);
-  const sol_wallets = useMemo(() => [ new CustomPhantomAdapter({
-    rpcUrl:"phantom://"
+  const sol_wallets = useMemo(() => [ new PhantomWalletAdapter({
   })], [sol_network]);
 
+  var sol_cookie = undefined
+
+  try{
+      
+    sol_cookie = getCookie("phantominfo")
+    sol_cookie = JSON.parse(sol_cookie)
+    sol_cookie = sol_cookie['public_key']
+
+  }catch(e){
+    console.log(e)
+  }
+
+
   return (
+    
     <TonConnectUIProvider manifestUrl="https://suibex.github.io/TGWallet_FrontEnd/tonconnect-manifest.json">
       <ConnectionProvider endpoint={sol_endpoint}>
       <WalletProvider wallets={sol_wallets} >
         <WalletModalProvider>
             <div className="App">
+           
               <header className="App-header">
-              <p class="idg" id="idg">-</p> 
+              <p class="idg" id="idg"></p>
+              {
+                sol_cookie != undefined ? (
+                  <p id="idg">{sol_cookie}</p>
+                ):(
+                  <p id="idg"> </p>  
+                )
+              }
               <ConnectTelegramWallet/>
               <br></br>
               <WalletConnect/>
