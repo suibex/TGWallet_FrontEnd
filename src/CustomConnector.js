@@ -171,7 +171,7 @@ export const CustomConnector = () =>{
         payload:bs58.encode(encr_json)
       });
     
-      const url = `phantom://disconnect?${params.toString()}`;
+      const url = `https://phantom.app/ul/v1/disconnect?${params.toString()}`;
   
       window.location.href = url
       
@@ -185,7 +185,7 @@ export const CustomConnector = () =>{
         redirect_link: "https://suibex.github.io/onPhantomConnect",
       });
    
-      const url = `phantom://connect?${params.toString()}`;
+      const url = `https://phantom.app/ul/v1/connect?${params.toString()}`;
       console.log(url)
   
       window.location.href = url
