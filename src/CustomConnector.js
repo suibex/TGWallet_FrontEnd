@@ -167,11 +167,11 @@ export const CustomConnector = () =>{
       const params = new URLSearchParams({
         dapp_encryption_public_key: bs58.encode(keypair.publicKey),
         nonce:  bs58.encode(nonce),
-        redirect_link: "http://192.168.0.14:3000/onPhantomDisconnect",
+        redirect_link: "https://suibex.github.io/onPhantomDisconnect",
         payload:bs58.encode(encr_json)
       });
     
-      const url = `https://phantom.app/ul/v1/disconnect?${params.toString()}`;
+      const url = `phantom://disconnect?${params.toString()}`;
   
       window.location.href = url
       
@@ -182,10 +182,10 @@ export const CustomConnector = () =>{
         dapp_encryption_public_key: bs58.encode(keypair.publicKey),
         cluster: sol_network,
         app_url: "https://suibex.github.io",
-        redirect_link: "http://192.168.0.14:3000/onPhantomConnect",
+        redirect_link: "https://suibex.github.io/onPhantomConnect",
       });
    
-      const url = `https://phantom.app/ul/v1/connect?${params.toString()}`;
+      const url = `phantom://connect?${params.toString()}`;
       console.log(url)
   
       window.location.href = url
