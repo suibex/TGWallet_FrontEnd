@@ -79,9 +79,10 @@ export const CustomConnector = () =>{
             const data = response.data.result
             console.log(data)
 
+            const decoded_pubkey = bs58.decode(data["phantom_encryption_public_key"])
      
             const sharedSecretDapp = nacl.box.before(
-              bs58.decode(data["phantom_encryption_public_key"]),
+              decoded_pubkey,
               keypair.secretKey
             );
           
