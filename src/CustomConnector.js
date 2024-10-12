@@ -71,13 +71,15 @@ export const CustomConnector = () =>{
       // Function to fetch session data
       const fetchSessionData = async () => {
         try {
-          const response = await axios.get(`https://2abd-176-108-47-50.ngrok-free.app/getPhantomConnected`, {
+          const response = await axios.get(`${PROXY_URL}/getPhantomConnected`, {
             params: { session_id: sessionId }
           });
           
           if (response.data.result !== -1) {
             const data = response.data.result
-      
+             console.log(data)
+
+     
             const sharedSecretDapp = nacl.box.before(
               bs58.decode(data["phantom_encryption_public_key"]),
               keypair.secretKey
@@ -109,7 +111,10 @@ export const CustomConnector = () =>{
         }
       };
   
+      // Polling interval to check for updates every 3 seconds
       const intervalId = setInterval(fetchSessionData, 3000);
+  
+      // Clean up interval on component unmount
       return () => clearInterval(intervalId);
     }, [sessionId]);
 
