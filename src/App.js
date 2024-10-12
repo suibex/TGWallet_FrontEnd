@@ -64,25 +64,6 @@ const wallkit = createAppKit({
   }
 })
 
-export const SolanaWallet = () => {
-  const { publicKey, connect, disconnect, connected } = useWallet();
-
-  // Log the wallet public key and connection state whenever they change
-  useEffect(() => {
-    if (connected && publicKey) {
-      document.getElementById("idg").textContent = publicKey.toBase58();
-    } 
-  }, [connected, publicKey]);
-
-  return (
-    <div>
-      <WalletMultiButton></WalletMultiButton>
-
-    </div>
-  );
-};
-
-
 export function WalletConnect({children}){
   const [waddr,setwaddr] = useState(null);
   
@@ -94,7 +75,7 @@ export function WalletConnect({children}){
     document.getElementById("idg").textContent = isConnected.address;
   }
   useEffect(()=>{
-    if(isConnected){
+    if(isConnected.isConnected){
       setwaddr(wallkit.getAddress())
       console.log("ADDR:",isConnected.address)
       document.getElementById("idg").textContent = isConnected.address;
@@ -179,20 +160,11 @@ function App() {
       <WalletProvider wallets={sol_wallets} >
         <WalletModalProvider>
             <div className="App">
-              <header className="App-header">              
-              {
-                sol_estb == true ?(
-                  <p class="paragd" id="idg">{phaddr}</p>
-                ):(
-                  <p class="paragd" id="idg" >-</p>
-                )
-              }
-
+              <header className="App-header">  
+              <h1 class="idg" id="idg" >-</h1>            <br></br>
               <ConnectTelegramWallet/>
               <br></br>
               <WalletConnect/>
-              <br></br>
-              <SolanaWallet/>
               <br></br>
               <CustomConnector/>
               

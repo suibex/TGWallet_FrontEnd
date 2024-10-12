@@ -32,7 +32,7 @@ const solanaWeb3 = require('@solana/web3.js');
 const util = require('tweetnacl-util');
 const { decodeUTF8, encodeBase64, decodeBase64, encodeUTF8 } = require('tweetnacl-util');
 
-const SITE_URL = "http://192.168.1.21:3001"
+const PROXY_URL = ""
 
 function getRandomInt(min, max) {
   min = Math.ceil(min);
@@ -109,10 +109,7 @@ export const CustomConnector = () =>{
         }
       };
   
-      // Polling interval to check for updates every 3 seconds
       const intervalId = setInterval(fetchSessionData, 3000);
-  
-      // Clean up interval on component unmount
       return () => clearInterval(intervalId);
     }, [sessionId]);
 
@@ -142,15 +139,14 @@ export const CustomConnector = () =>{
           const params = new URLSearchParams({
             dapp_encryption_public_key: bs58.encode(keypair.publicKey),
             nonce:  bs58.encode(nonce),
-            redirect_link: `${SITE_URL}/onPhantomDisconnect?session_id=${sessionId}`,
+            redirect_link: `${PROXY_URL}/onPhantomDisconnect?session_id=${sessionId}`,
             payload:bs58.encode(encr_json)
           });
           
           const urlz = `https://phantom.app/ul/v1/disconnect?${params.toString()}`;
           
           window.location.href = urlz
-          //window.Telegram.WebApp.close()
-          
+
         }
       }
      
@@ -162,7 +158,7 @@ export const CustomConnector = () =>{
         dapp_encryption_public_key: bs58.encode(keypair.publicKey),
         cluster: sol_network,
         app_url: "https://suibex.github.io",
-        redirect_link: `${SITE_URL}/onPhantomConnect?session_id=${sessionId}`,
+        redirect_link: `${PROXY_URL}/onPhantomConnect?session_id=${sessionId}`,
       });
    
       const url = `https://phantom.app/ul/v1/connect?${params.toString()}`;
@@ -176,9 +172,15 @@ export const CustomConnector = () =>{
     }
     return (
       <div>
-        <p>session id {sessionId}</p>
-        <button onClick={connect}>Connect</button>
-        <button onClick={disconnect}>Disconnect</button>
+      
+        {
+          PWPublicKey != null ? (
+            <button class="wallet-button disconnect-button" onClick={disconnect}>Disconnect Phantom</button>
+          ):(
+            <button class="wallet-button connect-button" onClick={connect}>Connect Phantom</button>
+          )
+        }
+          <p class="idg">Session ID: {sessionId}</p>
       </div>
     )
   

@@ -27,7 +27,73 @@
 .App-link {
   color: #61dafb;
 }
-.paragrd {
+
+/* Base styles for both buttons */
+.wallet-button {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+  background: linear-gradient(135deg, #6a00f4 0%, #bb00ff 100%);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Add subtle glowing border */
+.wallet-button::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(106, 0, 244, 0.6), rgba(187, 0, 255, 0.6));
+  filter: blur(8px);
+  z-index: -1;
+}
+
+/* Hover effect */
+.wallet-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(106, 0, 244, 0.6);
+  background: linear-gradient(135deg, #7b2ff7 0%, #cf1cff 100%);
+}
+
+/* Connect Button */
+.connect-button {
+  background: linear-gradient(135deg, #6a00f4 0%, #bb00ff 100%);
+}
+
+.connect-button:hover {
+  background: linear-gradient(135deg, #7b2ff7 0%, #d834ff 100%);
+}
+
+/* Disconnect Button */
+.disconnect-button {
+  background: linear-gradient(135deg, #ff0044 0%, #ff7b7b 100%);
+}
+
+.disconnect-button:hover {
+  background: linear-gradient(135deg, #ff3366 0%, #ff8b8b 100%);
+  box-shadow: 0 12px 24px rgba(255, 0, 68, 0.5);
+}
+
+/* Optional for adding neon-style glow on focus */
+.wallet-button:focus {
+  outline: none;
+  box-shadow: 0 0 8px #9f00ff, 0 0 16px #9f00ff, 0 0 32px #9f00ff;
+}
+
+
+.idg {
   width: 100%;           /* Take full width of the container */
   max-width: 600px;     /* Set a maximum width */
   margin: 0 auto;       /* Center the paragraph */
