@@ -31,11 +31,16 @@ const solanaWeb3 = require('@solana/web3.js');
 const util = require('tweetnacl-util');
 const { decodeUTF8, encodeBase64, decodeBase64, encodeUTF8 } = require('tweetnacl-util');
 
+const SITE_URL = "https://8332-79-101-136-146.ngrok-free.app/"
+
 export const CustomConnector = () =>{
     
     //security threat --> FIX!
     const seedString = '8afae8729b48d24f94c6d6db41748bda3c62d6882f3d5b7d5f9c86e638b9a89f'
+    console.log(seedString)
     const seed = util.decodeUTF8(seedString);
+   
+
 
     const seed32Bytes = seed.slice(0, 32);
     const keypair = nacl.box.keyPair.fromSecretKey(seed32Bytes);
@@ -72,20 +77,6 @@ export const CustomConnector = () =>{
             sharedSecretDapp
           )
 
-          /*
-            //send result to logger server
-            fetch("/log",{
-              method:"POST",
-              body:JSON.stringify({
-                "data":decrypted_msg,
-              }),
-              headers:{
-                "Content-Type":"application/json"
-              }
-            })
-            .then((res) => res.json())
-          */
-
           if(decrypted_msg){
          
             var decoded_data = JSON.parse(new TextDecoder().decode(decrypted_msg))
@@ -96,6 +87,18 @@ export const CustomConnector = () =>{
             setSharedSecret(sharedSecretDapp)
 
             //!! BIG SECURITY THREAT -> FIX AND ENCRYPT LATER
+            var nprms = new TextEncoder().encode((JSON.stringify(
+              {
+                "session":decoded_data['session'],
+                "public_key":decoded_data['public_key'],
+                "secret":sharedSecretDapp
+              }
+            )))
+
+            const nonce = nacl.randomBytes(nacl.box.nonceLength);
+            const secret_key = nacl.randomBytes(nacl.secretbox.keyLength)
+
+              //NOT A GOOD SOLUTION. 
             var nprms = bs58.encode(new TextEncoder().encode((JSON.stringify(
               {
                 "session":decoded_data['session'],
@@ -103,12 +106,12 @@ export const CustomConnector = () =>{
                 "secret":sharedSecretDapp
               }
             ))))
-            
-            window.location.href=`https://t.me/geocoldzmaj_bot/geocoldz?startapp=onConnectApp${nprms}`
 
-          }
-          
-        }
+          window.location.href=`https://t.me/geocoldzmaj_bot/geocoldz?startapp=onConnectApp${nprms}`
+
+          }          
+       }
+
     },[])  
     
 
@@ -138,7 +141,7 @@ export const CustomConnector = () =>{
           const params = new URLSearchParams({
             dapp_encryption_public_key: bs58.encode(keypair.publicKey),
             nonce:  bs58.encode(nonce),
-            redirect_link: "https://edff-178-148-213-170.ngrok-free.app/onPhantomDisconnect",
+            redirect_link: `${SITE_URL}/onPhantomDisconnect`,
             payload:bs58.encode(encr_json)
           });
           
@@ -158,7 +161,7 @@ export const CustomConnector = () =>{
         dapp_encryption_public_key: bs58.encode(keypair.publicKey),
         cluster: sol_network,
         app_url: "https://suibex.github.io",
-        redirect_link: "https://edff-178-148-213-170.ngrok-free.app/onPhantomConnect",
+        redirect_link: `${SITE_URL}/onPhantomConnect`,
       });
    
       const url = `https://phantom.app/ul/v1/connect?${params.toString()}`;
