@@ -71,7 +71,7 @@ export const CustomConnector = () =>{
       // Function to fetch session data
       const fetchSessionData = async () => {
         try {
-          const response = await axios.get(`/getPhantomConnected`, {
+          const response = await axios.get(`https://2abd-176-108-47-50.ngrok-free.app/getPhantomConnected`, {
             params: { session_id: sessionId }
           });
           
