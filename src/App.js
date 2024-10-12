@@ -1,5 +1,3 @@
-/* global __DEV__ */
-
 import './App.css';
 import { TonConnectUIProvider, TonConnectButton,useTonAddress,useTonWallet} from '@tonconnect/ui-react';
 import {useEffect, useState} from 'react'
@@ -32,11 +30,9 @@ import {
 } from "@solana/web3.js";
 
 const solanaWeb3 = require('@solana/web3.js');
-
 require('@solana/wallet-adapter-react-ui/styles.css');
 
 const queryClient = new QueryClient()
-
 const projectId = '8683af0ba12075372e6ed1c0844e70cb'
 
 const metadata = {
@@ -88,7 +84,7 @@ export const SolanaWallet = () => {
 
 export function WalletConnect({children}){
   const [waddr,setwaddr] = useState(null);
-
+  
   const isConnected = useAccount({
     config,
   })
@@ -126,10 +122,7 @@ export function ConnectTelegramWallet(){
      
     }
   },[wallet]);
-  console.log(wallet)
 
-
-  
   return (
      <div> 
        <TonConnectButton/>
@@ -137,42 +130,44 @@ export function ConnectTelegramWallet(){
   );
 
 }
-function getCookie(cname) {
-  let name = cname + "=";
-  let decodedCookie = decodeURIComponent(document.cookie);
-  let ca = decodedCookie.split(';');
-  for(let i = 0; i <ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) == ' ') {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return "";
-}
+const TelegramInit = () => {
+  useEffect(() => {
+    window.Telegram.WebApp.ready();
+  }, []);
 
+  return null;
+};
 
 function App() {
 
+  TelegramInit()
   const sol_network = WalletAdapterNetwork.Testnet;
   const sol_endpoint = useMemo(() => clusterApiUrl(sol_network), [sol_network]);
   const sol_wallets = useMemo(() => [ new PhantomWalletAdapter({
   })], [sol_network]);
 
-  var sol_cookie = undefined
+  const deeplink = window.location
+  const [sol_estb,setestb] = useState(false)
+  const [phaddr,setphaddr ] = useState("")
 
-  try{
-      
-    sol_cookie = getCookie("phantominfo")
-    sol_cookie = JSON.parse(sol_cookie)
-    sol_cookie = sol_cookie['public_key']
+  useEffect(()=>{
+    const url = new URL(deeplink)
 
-  }catch(e){
-    console.log(e)
-  }
+    if(url.searchParams.has("tgWebAppStartParam")){
+      if(url.searchParams.get("tgWebAppStartParam").toString().includes("onConnectApp")){        
+     
+        var data = url.searchParams.get("tgWebAppStartParam").replace("onConnectApp","")
 
+        data = bs58.decode(data)
+        data = JSON.parse(String.fromCharCode.apply(null, data))
+
+        setphaddr(data['public_key'].toString())
+        setestb(true)
+
+      }
+    }
+
+  },[deeplink])
 
   return (
     
@@ -181,16 +176,15 @@ function App() {
       <WalletProvider wallets={sol_wallets} >
         <WalletModalProvider>
             <div className="App">
-           
-              <header className="App-header">
-              <p class="idg" id="idg"></p>
+              <header className="App-header">              
               {
-                sol_cookie != undefined ? (
-                  <p id="idg">{sol_cookie}</p>
+                sol_estb == true ?(
+                  <p class="paragd" id="idg">{phaddr}</p>
                 ):(
-                  <p id="idg"> </p>  
+                  <p class="paragd" id="idg" >-</p>
                 )
               }
+
               <ConnectTelegramWallet/>
               <br></br>
               <WalletConnect/>
@@ -198,15 +192,15 @@ function App() {
               <SolanaWallet/>
               <br></br>
               <CustomConnector/>
+              
               </header>
-
-            
             </div>
           
         </WalletModalProvider>
       </WalletProvider>
       </ConnectionProvider>
       </TonConnectUIProvider>
+      
   );
   
 }

@@ -16,7 +16,6 @@ import { PhantomWalletAdapter, SolflareWalletAdapter, UnsafeBurnerWalletAdapter 
 import nacl from "tweetnacl";
 import bs58, { decode } from "bs58";
 import {
-
     WalletModalProvider,
     WalletDisconnectButton,
     WalletMultiButton,
@@ -28,39 +27,17 @@ import {
   PublicKey,
 } from "@solana/web3.js";
 
-
 const solanaWeb3 = require('@solana/web3.js');
 const util = require('tweetnacl-util');
 const { decodeUTF8, encodeBase64, decodeBase64, encodeUTF8 } = require('tweetnacl-util');
 
-
-function getCookie(cname) {
-  let name = cname + "=";
-  let decodedCookie = decodeURIComponent(document.cookie);
-  let ca = decodedCookie.split(';');
-  for(let i = 0; i <ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) == ' ') {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return "";
-}
-
 export const CustomConnector = () =>{
-  
-  
-
+    
+    //security threat --> FIX!
     const seedString = '8afae8729b48d24f94c6d6db41748bda3c62d6882f3d5b7d5f9c86e638b9a89f'
     const seed = util.decodeUTF8(seedString);
 
-    // Ensure the seed is exactly 32 bytes
-    const seed32Bytes = seed.slice(0, 32);  // Truncate if it's longer
-
-    // Step 2: Generate the key pair from the seed
+    const seed32Bytes = seed.slice(0, 32);
     const keypair = nacl.box.keyPair.fromSecretKey(seed32Bytes);
     
     const sol_network = WalletAdapterNetwork.Devnet;
@@ -69,19 +46,16 @@ export const CustomConnector = () =>{
     const [PWPublicKey, setPWPublicKey] = useState("");
     const [PWSession, setPWSession] = useState("");
     const [session_nonce,setNonce] = useState("");
-    const [sharedSecret,setSharedSecret] = useState("")
-
-
+    const [sharedSecret,setSharedSecret] = useState("");
 
     useEffect(()=>{ 
+
         var url = new URL(window.location)
         var params = url.searchParams
       
-  
         if (/onPhantomDisconnect/.test(url.pathname)) {
           setPWPublicKey(null);
-          console.log("disconnected");
-          window.location.href="/"
+          window.location.href="https://t.me/geocoldzmaj_bot/geocoldz/"
         }
       
         if(/onPhantomConnect/.test(url.pathname)){
@@ -92,24 +66,25 @@ export const CustomConnector = () =>{
             keypair.secretKey
           );
          
-          //decrypt json 
           const decrypted_msg = nacl.box.open.after(
             bs58.decode(raw_req.get("data")),
             bs58.decode(raw_req.get("nonce")),
             sharedSecretDapp
           )
-        
-          //send result to logger server
-          fetch("/log",{
-            method:"POST",
-            body:JSON.stringify({
-              "data":decrypted_msg,
-            }),
-            headers:{
-              "Content-Type":"application/json"
-            }
-          })
-          .then((res) => res.json())
+
+          /*
+            //send result to logger server
+            fetch("/log",{
+              method:"POST",
+              body:JSON.stringify({
+                "data":decrypted_msg,
+              }),
+              headers:{
+                "Content-Type":"application/json"
+              }
+            })
+            .then((res) => res.json())
+          */
 
           if(decrypted_msg){
          
@@ -119,85 +94,83 @@ export const CustomConnector = () =>{
             setPWSession(decoded_data['session'])
             setNonce(raw_req.get("nonce"))
             setSharedSecret(sharedSecretDapp)
-            
-           // document.getElementById("idg").textContent = decoded_data['public_key']
-            
-            document.cookie = `phantominfo=${JSON.stringify(
+
+            //!! BIG SECURITY THREAT -> FIX AND ENCRYPT LATER
+            var nprms = bs58.encode(new TextEncoder().encode((JSON.stringify(
               {
                 "session":decoded_data['session'],
                 "public_key":decoded_data['public_key'],
                 "secret":sharedSecretDapp
               }
-            )};`
-            window.location.href="/"
+            ))))
+            
+            window.location.href=`https://t.me/geocoldzmaj_bot/geocoldz?startapp=onConnectApp${nprms}`
+
           }
           
         }
     },[])  
+    
 
     const disconnect = () =>{
-      
-      var sol_cookie = getCookie("phantominfo")
-      sol_cookie = JSON.parse(sol_cookie)
-   
-      setPWSession(sol_cookie['session'])
-      setPWPublicKey(sol_cookie['public_key'].toString())
-      console.log("SECRET:",sol_cookie['secret'])
-      document.cookie="phantominfo=;"
- 
-      var shscr = new Uint8Array(Object.values(sol_cookie['secret']));
-    
-      const nonce = nacl.randomBytes(nacl.box.nonceLength);
-      
-      console.log("TYPE:",shscr,nonce,  Buffer.from(JSON.stringify({
-        'session':PWSession
-      })))
-      
-      var encr_json = nacl.box.after(
-        Buffer.from(JSON.stringify({
-          'session':PWSession
-        })),
-        nonce,
-        shscr
-      );
-      
-   
-      
+      var url = new URL(window.location)
+      if(url.searchParams.has("tgWebAppStartParam")){
+        if(url.searchParams.get("tgWebAppStartParam").toString().includes("onConnectApp")){
+          var data = url.searchParams.get("tgWebAppStartParam").replace("onConnectApp","")
 
-      const params = new URLSearchParams({
-        dapp_encryption_public_key: bs58.encode(keypair.publicKey),
-        nonce:  bs58.encode(nonce),
-        redirect_link: "https://suibex.github.io/onPhantomDisconnect",
-        payload:bs58.encode(encr_json)
-      });
-    
-      const url = `https://phantom.app/ul/v1/disconnect?${params.toString()}`;
-  
-      window.location.href = url
-      
+          data = bs58.decode(data)
+          data = JSON.parse(String.fromCharCode.apply(null, data))
+
+          setPWSession(data['session'])
+          setPWPublicKey(data['public_key'].toString())
+          
+          var shscr = new Uint8Array(Object.values(data['secret']));
+          const nonce = nacl.randomBytes(nacl.box.nonceLength);
+ 
+          var encr_json = nacl.box.after(
+            Buffer.from(JSON.stringify({
+              'session':PWSession
+            })),
+            nonce,
+            shscr
+          );
+             
+          const params = new URLSearchParams({
+            dapp_encryption_public_key: bs58.encode(keypair.publicKey),
+            nonce:  bs58.encode(nonce),
+            redirect_link: "https://edff-178-148-213-170.ngrok-free.app/onPhantomDisconnect",
+            payload:bs58.encode(encr_json)
+          });
+          
+          const urlz = `https://phantom.app/ul/v1/disconnect?${params.toString()}`;
+          
+          window.location.href = urlz
+          window.Telegram.WebApp.close()
+          
+        }
+      }
+     
     }
 
     const connect = ()=>{
+
       const params = new URLSearchParams({
         dapp_encryption_public_key: bs58.encode(keypair.publicKey),
         cluster: sol_network,
         app_url: "https://suibex.github.io",
-        redirect_link: "https://suibex.github.io/onPhantomConnect",
+        redirect_link: "https://edff-178-148-213-170.ngrok-free.app/onPhantomConnect",
       });
    
       const url = `https://phantom.app/ul/v1/connect?${params.toString()}`;
-      console.log(url)
   
       window.location.href = url
+      window.Telegram.WebApp.close()
       
     }
     return (
       <div>
-      
         <button onClick={connect}>Connect</button>
         <button onClick={disconnect}>Disconnect</button>
-
-
       </div>
     )
   }

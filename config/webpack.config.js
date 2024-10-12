@@ -579,6 +579,11 @@ module.exports = function (webpackEnv) {
         },
       ].filter(Boolean),
     },
+    devServer: {
+      compress: true,
+      disableHostCheck: true,   // That solved it
+  
+   },
     plugins: [
       // Generates an `index.html` file with the <script> injected.
       new HtmlWebpackPlugin(
@@ -606,6 +611,7 @@ module.exports = function (webpackEnv) {
             : undefined
         )
       ),
+      
       // Inlines the webpack runtime script. This script is too small to warrant
       // a network request.
       // https://github.com/facebook/create-react-app/issues/5358
@@ -768,5 +774,9 @@ module.exports = function (webpackEnv) {
     // Turn off performance processing because we utilize
     // our own hints via the FileSizeReporter
     performance: false,
+    devServer: {
+      disableHostCheck: true
+    }
+    
   };
 };
