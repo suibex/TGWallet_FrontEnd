@@ -32,7 +32,7 @@ const solanaWeb3 = require('@solana/web3.js');
 const util = require('tweetnacl-util');
 const { decodeUTF8, encodeBase64, decodeBase64, encodeUTF8 } = require('tweetnacl-util');
 
-const PROXY_URL = ""
+const PROXY_URL = "https://2abd-176-108-47-50.ngrok-free.app"
 
 function getRandomInt(min, max) {
   min = Math.ceil(min);
