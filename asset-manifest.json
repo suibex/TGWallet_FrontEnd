@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/TGWallet_FrontEnd/static/css/main.4e4a1fdf.css",
-    "main.js": "/TGWallet_FrontEnd/static/js/main.1282a810.js",
+    "main.js": "/TGWallet_FrontEnd/static/js/main.dfbc9855.js",
     "static/js/496.e4f3b5f1.chunk.js": "/TGWallet_FrontEnd/static/js/496.e4f3b5f1.chunk.js",
     "static/js/147.3352a190.chunk.js": "/TGWallet_FrontEnd/static/js/147.3352a190.chunk.js",
     "static/js/144.220e96fe.chunk.js": "/TGWallet_FrontEnd/static/js/144.220e96fe.chunk.js",
@@ -15,6 +15,6 @@
   },
   "entrypoints": [
     "static/css/main.4e4a1fdf.css",
-    "static/js/main.1282a810.js"
+    "static/js/main.dfbc9855.js"
   ]
 }
