@@ -1,29 +1,20 @@
 {
   "files": {
-    "main.css": "/TGWallet_FrontEnd/static/css/main.cb873b8d.css",
-    "main.js": "/TGWallet_FrontEnd/static/js/main.19a25121.js",
-    "static/js/496.9593a1eb.chunk.js": "/TGWallet_FrontEnd/static/js/496.9593a1eb.chunk.js",
-    "static/js/147.c6e7f790.chunk.js": "/TGWallet_FrontEnd/static/js/147.c6e7f790.chunk.js",
-    "static/js/144.fb057d32.chunk.js": "/TGWallet_FrontEnd/static/js/144.fb057d32.chunk.js",
-    "static/js/507.269317f2.chunk.js": "/TGWallet_FrontEnd/static/js/507.269317f2.chunk.js",
-    "static/js/453.0098adef.chunk.js": "/TGWallet_FrontEnd/static/js/453.0098adef.chunk.js",
-    "static/js/155.5b772681.chunk.js": "/TGWallet_FrontEnd/static/js/155.5b772681.chunk.js",
-    "static/js/256.918bfe07.chunk.js": "/TGWallet_FrontEnd/static/js/256.918bfe07.chunk.js",
-    "static/js/904.abe97168.chunk.js": "/TGWallet_FrontEnd/static/js/904.abe97168.chunk.js",
-    "static/js/594.e292ce9e.chunk.js": "/TGWallet_FrontEnd/static/js/594.e292ce9e.chunk.js",
-    "index.html": "/TGWallet_FrontEnd/index.html",
-    "main.cb873b8d.css.map": "/TGWallet_FrontEnd/static/css/main.cb873b8d.css.map",
-    "main.19a25121.js.map": "/TGWallet_FrontEnd/static/js/main.19a25121.js.map",
-    "496.9593a1eb.chunk.js.map": "/TGWallet_FrontEnd/static/js/496.9593a1eb.chunk.js.map",
-    "507.269317f2.chunk.js.map": "/TGWallet_FrontEnd/static/js/507.269317f2.chunk.js.map",
-    "453.0098adef.chunk.js.map": "/TGWallet_FrontEnd/static/js/453.0098adef.chunk.js.map",
-    "155.5b772681.chunk.js.map": "/TGWallet_FrontEnd/static/js/155.5b772681.chunk.js.map",
-    "256.918bfe07.chunk.js.map": "/TGWallet_FrontEnd/static/js/256.918bfe07.chunk.js.map",
-    "904.abe97168.chunk.js.map": "/TGWallet_FrontEnd/static/js/904.abe97168.chunk.js.map",
-    "594.e292ce9e.chunk.js.map": "/TGWallet_FrontEnd/static/js/594.e292ce9e.chunk.js.map"
+    "main.css": "/TGWallet_FrontEnd/static/css/main.4e4a1fdf.css",
+    "main.js": "/TGWallet_FrontEnd/static/js/main.1282a810.js",
+    "static/js/496.e4f3b5f1.chunk.js": "/TGWallet_FrontEnd/static/js/496.e4f3b5f1.chunk.js",
+    "static/js/147.3352a190.chunk.js": "/TGWallet_FrontEnd/static/js/147.3352a190.chunk.js",
+    "static/js/144.220e96fe.chunk.js": "/TGWallet_FrontEnd/static/js/144.220e96fe.chunk.js",
+    "static/js/507.f69d881b.chunk.js": "/TGWallet_FrontEnd/static/js/507.f69d881b.chunk.js",
+    "static/js/453.b90e1e3f.chunk.js": "/TGWallet_FrontEnd/static/js/453.b90e1e3f.chunk.js",
+    "static/js/155.94de5f09.chunk.js": "/TGWallet_FrontEnd/static/js/155.94de5f09.chunk.js",
+    "static/js/256.2862de45.chunk.js": "/TGWallet_FrontEnd/static/js/256.2862de45.chunk.js",
+    "static/js/904.7f99c272.chunk.js": "/TGWallet_FrontEnd/static/js/904.7f99c272.chunk.js",
+    "static/js/594.73716fc9.chunk.js": "/TGWallet_FrontEnd/static/js/594.73716fc9.chunk.js",
+    "index.html": "/TGWallet_FrontEnd/index.html"
   },
   "entrypoints": [
-    "static/css/main.cb873b8d.css",
-    "static/js/main.19a25121.js"
+    "static/css/main.4e4a1fdf.css",
+    "static/js/main.1282a810.js"
   ]
 }

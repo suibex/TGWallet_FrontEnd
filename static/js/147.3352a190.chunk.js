@@ -1,0 +1,1 @@
+(self.webpackChunkclient=self.webpackChunkclient||[]).push([[147],{15340:()=>{eval("/* (ignored) */\n\n//# sourceURL=../ignored%7C/Users/gavrilo/Desktop/TGWalletApp/front/node_modules/readable-stream/lib/internal/streams%7Cutil")},79838:()=>{eval("/* (ignored) */\n\n//# sourceURL=../ignored%7C/Users/gavrilo/Desktop/TGWalletApp/front/node_modules/readable-stream/lib%7Cutil")}}]);
