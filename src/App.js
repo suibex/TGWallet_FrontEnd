@@ -16,6 +16,7 @@ import { PhantomWalletAdapter, SolflareWalletAdapter, UnsafeBurnerWalletAdapter 
 
 import nacl from "tweetnacl";
 import bs58 from "bs58";
+
 import {
 
     WalletModalProvider,
@@ -147,9 +148,10 @@ function App() {
   })], [sol_network]);
 
   const deeplink = window.location
-  const [sol_estb,setestb] = useState(false)
-  const [phaddr,setphaddr ] = useState("")
-
+  const [sol_estb,setestb] = useState(false);
+  const [phaddr,setphaddr ] = useState("");
+  
+  /*
   useEffect(()=>{
     const url = new URL(deeplink)
 
@@ -166,9 +168,10 @@ function App() {
 
       }
     }
+    
 
   },[deeplink])
-
+  */
   return (
     
     <TonConnectUIProvider manifestUrl="https://suibex.github.io/TGWallet_FrontEnd/tonconnect-manifest.json">

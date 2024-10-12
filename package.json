@@ -25,6 +25,7 @@
     "@tonconnect/ui": "^2.0.9",
     "@tonconnect/ui-react": "^2.0.9",
     "@walletconnect/modal-sign-react": "^2.5.8",
+    "axios": "^1.7.7",
     "babel-jest": "^27.4.2",
     "babel-loader": "^8.2.3",
     "babel-plugin-named-asset-import": "^0.3.8",

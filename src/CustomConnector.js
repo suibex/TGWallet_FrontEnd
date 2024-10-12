@@ -15,6 +15,7 @@ import { PhantomWalletAdapter, SolflareWalletAdapter, UnsafeBurnerWalletAdapter 
 
 import nacl from "tweetnacl";
 import bs58, { decode } from "bs58";
+import axios from 'axios';
 import {
     WalletModalProvider,
     WalletDisconnectButton,
@@ -31,7 +32,14 @@ const solanaWeb3 = require('@solana/web3.js');
 const util = require('tweetnacl-util');
 const { decodeUTF8, encodeBase64, decodeBase64, encodeUTF8 } = require('tweetnacl-util');
 
-const SITE_URL = "https://8332-79-101-136-146.ngrok-free.app/"
+const SITE_URL = "http://192.168.1.21:3001"
+
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
 
 export const CustomConnector = () =>{
     
@@ -39,81 +47,74 @@ export const CustomConnector = () =>{
     const seedString = '8afae8729b48d24f94c6d6db41748bda3c62d6882f3d5b7d5f9c86e638b9a89f'
     console.log(seedString)
     const seed = util.decodeUTF8(seedString);
-   
-
-
+  
     const seed32Bytes = seed.slice(0, 32);
     const keypair = nacl.box.keyPair.fromSecretKey(seed32Bytes);
     
     const sol_network = WalletAdapterNetwork.Devnet;
     const sol_endpoint = useMemo(() => clusterApiUrl(sol_network), [sol_network]);
     
-    const [PWPublicKey, setPWPublicKey] = useState("");
+    const [PWPublicKey, setPWPublicKey] = useState(null);
     const [PWSession, setPWSession] = useState("");
+
     const [session_nonce,setNonce] = useState("");
     const [sharedSecret,setSharedSecret] = useState("");
 
-    useEffect(()=>{ 
+    const sessionId = getRandomInt(0,0xFFFFFFFF)
 
-        var url = new URL(window.location)
-        var params = url.searchParams
-      
-        if (/onPhantomDisconnect/.test(url.pathname)) {
-          setPWPublicKey(null);
-          window.location.href="https://t.me/geocoldzmaj_bot/geocoldz/"
-        }
-      
-        if(/onPhantomConnect/.test(url.pathname)){
-          var raw_req = new URL(url).searchParams
+    const [sessionData, setSessionData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+  
+    // Polling to fetch session data
+    useEffect(() => {
+      // Function to fetch session data
+      const fetchSessionData = async () => {
+        try {
+          const response = await axios.get(`/getPhantomConnected`, {
+            params: { session_id: sessionId }
+          });
           
-          const sharedSecretDapp = nacl.box.before(
-            bs58.decode(params.get("phantom_encryption_public_key")),
-            keypair.secretKey
-          );
-         
-          const decrypted_msg = nacl.box.open.after(
-            bs58.decode(raw_req.get("data")),
-            bs58.decode(raw_req.get("nonce")),
-            sharedSecretDapp
-          )
+          if (response.data.result !== -1) {
+            const data = response.data.result
+      
+            const sharedSecretDapp = nacl.box.before(
+              bs58.decode(data["phantom_encryption_public_key"]),
+              keypair.secretKey
+            );
+          
+            const decrypted_msg = nacl.box.open.after(
+              bs58.decode(data["data"]),
+              bs58.decode(data["nonce"]),
+              sharedSecretDapp
+            )
 
-          if(decrypted_msg){
-         
-            var decoded_data = JSON.parse(new TextDecoder().decode(decrypted_msg))
-            
-            setPWPublicKey(decoded_data['public_key'])
-            setPWSession(decoded_data['session'])
-            setNonce(raw_req.get("nonce"))
-            setSharedSecret(sharedSecretDapp)
+            if(decrypted_msg){
+          
+              var decoded_data = JSON.parse(new TextDecoder().decode(decrypted_msg))
+              setPWPublicKey(decoded_data['public_key'])
+              setPWSession(decoded_data['session'])
+              setNonce(data["nonce"])
+              setSharedSecret(sharedSecretDapp)
 
-            //!! BIG SECURITY THREAT -> FIX AND ENCRYPT LATER
-            var nprms = new TextEncoder().encode((JSON.stringify(
-              {
-                "session":decoded_data['session'],
-                "public_key":decoded_data['public_key'],
-                "secret":sharedSecretDapp
-              }
-            )))
-
-            const nonce = nacl.randomBytes(nacl.box.nonceLength);
-            const secret_key = nacl.randomBytes(nacl.secretbox.keyLength)
-
-              //NOT A GOOD SOLUTION. 
-            var nprms = bs58.encode(new TextEncoder().encode((JSON.stringify(
-              {
-                "session":decoded_data['session'],
-                "public_key":decoded_data['public_key'],
-                "secret":sharedSecretDapp
-              }
-            ))))
-
-          window.location.href=`https://t.me/geocoldzmaj_bot/geocoldz?startapp=onConnectApp${nprms}`
-
-          }          
-       }
-
-    },[])  
-    
+            }
+            setSessionData(response.data.result);
+            setLoading(false);
+          } else {
+            console.log('Session data not found yet');
+          }
+        } catch (error) {
+          console.error('Error fetching session data:', error);
+          setError(error.message);
+        }
+      };
+  
+      // Polling interval to check for updates every 3 seconds
+      const intervalId = setInterval(fetchSessionData, 3000);
+  
+      // Clean up interval on component unmount
+      return () => clearInterval(intervalId);
+    }, [sessionId]);
 
     const disconnect = () =>{
       var url = new URL(window.location)
@@ -141,14 +142,14 @@ export const CustomConnector = () =>{
           const params = new URLSearchParams({
             dapp_encryption_public_key: bs58.encode(keypair.publicKey),
             nonce:  bs58.encode(nonce),
-            redirect_link: `${SITE_URL}/onPhantomDisconnect`,
+            redirect_link: `${SITE_URL}/onPhantomDisconnect?session_id=${sessionId}`,
             payload:bs58.encode(encr_json)
           });
           
           const urlz = `https://phantom.app/ul/v1/disconnect?${params.toString()}`;
           
           window.location.href = urlz
-          window.Telegram.WebApp.close()
+          //window.Telegram.WebApp.close()
           
         }
       }
@@ -161,19 +162,24 @@ export const CustomConnector = () =>{
         dapp_encryption_public_key: bs58.encode(keypair.publicKey),
         cluster: sol_network,
         app_url: "https://suibex.github.io",
-        redirect_link: `${SITE_URL}/onPhantomConnect`,
+        redirect_link: `${SITE_URL}/onPhantomConnect?session_id=${sessionId}`,
       });
    
       const url = `https://phantom.app/ul/v1/connect?${params.toString()}`;
   
       window.location.href = url
-      window.Telegram.WebApp.close()
-      
+
+    }
+
+    if(PWPublicKey != null){
+      document.getElementById("idg").innerHTML = PWPublicKey
     }
     return (
       <div>
+        <p>session id {sessionId}</p>
         <button onClick={connect}>Connect</button>
         <button onClick={disconnect}>Disconnect</button>
       </div>
     )
+  
   }
