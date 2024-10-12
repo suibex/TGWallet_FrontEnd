@@ -100,7 +100,7 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
   },
-  "proxy": "http://localhost:3001",
+  "proxy": "https://2abd-176-108-47-50.ngrok-free.app",
   "eslintConfig": {
     "extends": [
       "react-app",
