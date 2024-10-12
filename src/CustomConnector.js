@@ -77,7 +77,7 @@ export const CustomConnector = () =>{
           
           if (response.data.result !== -1) {
             const data = response.data.result
-             console.log(data)
+            console.log(data)
 
      
             const sharedSecretDapp = nacl.box.before(
