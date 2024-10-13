@@ -32,7 +32,7 @@ const solanaWeb3 = require('@solana/web3.js');
 const util = require('tweetnacl-util');
 const { decodeUTF8, encodeBase64, decodeBase64, encodeUTF8 } = require('tweetnacl-util');
 
-const PROXY_URL = "https://2abd-176-108-47-50.ngrok-free.app"
+const PROXY_URL = "https://7957-176-108-47-50.ngrok-free.app"
 
 function getRandomInt(min, max) {
   min = Math.ceil(min);
@@ -40,14 +40,14 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-
 export const CustomConnector = () =>{
     
     //security threat --> FIX!
-    const seedString = '8afae8729b48d24f94c6d6db41748bda3c62d6882f3d5b7d5f9c86e638b9a89f'
-    console.log(seedString)
-    const seed = util.decodeUTF8(seedString);
-  
+    //const seedString = '8afae8729b48d24f94c6d6db41748bda3c62d6882f3d5b7d5f9c86e638b9a89f'
+    //console.log(seedString)
+  //  const seed = util.decodeUTF8(seedString);
+    const seed = nacl.randomBytes(32);
+
     const seed32Bytes = seed.slice(0, 32);
     const keypair = nacl.box.keyPair.fromSecretKey(seed32Bytes);
     
@@ -65,22 +65,19 @@ export const CustomConnector = () =>{
     const [sessionData, setSessionData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-  
-    // Polling to fetch session data
+
     useEffect(() => {
-      // Function to fetch session data
       const fetchSessionData = async () => {
         try {
-          const response = await axios.get(`${PROXY_URL}/getPhantomConnected`, {
+          const response = await axios.get(`/getPhantomConnected`, {
             params: { session_id: sessionId }
           });
           
           if (response.data.result !== -1) {
+    
             const data = response.data.result
-            console.log(data)
-
             const decoded_pubkey = bs58.decode(data["phantom_encryption_public_key"])
-     
+    
             const sharedSecretDapp = nacl.box.before(
               decoded_pubkey,
               keypair.secretKey
@@ -99,39 +96,32 @@ export const CustomConnector = () =>{
               setPWSession(decoded_data['session'])
               setNonce(data["nonce"])
               setSharedSecret(sharedSecretDapp)
+              document.cookie=`phantom_addr=${decoded_data['public_key']};`;
 
             }
+
             setSessionData(response.data.result);
             setLoading(false);
+          
           } else {
             console.log('Session data not found yet');
           }
+        
         } catch (error) {
           console.error('Error fetching session data:', error);
           setError(error.message);
         }
       };
-  
-      // Polling interval to check for updates every 3 seconds
+
       const intervalId = setInterval(fetchSessionData, 3000);
-  
-      // Clean up interval on component unmount
       return () => clearInterval(intervalId);
+
     }, [sessionId]);
 
     const disconnect = () =>{
       var url = new URL(window.location)
-      if(url.searchParams.has("tgWebAppStartParam")){
-        if(url.searchParams.get("tgWebAppStartParam").toString().includes("onConnectApp")){
-          var data = url.searchParams.get("tgWebAppStartParam").replace("onConnectApp","")
-
-          data = bs58.decode(data)
-          data = JSON.parse(String.fromCharCode.apply(null, data))
-
-          setPWSession(data['session'])
-          setPWPublicKey(data['public_key'].toString())
-          
-          var shscr = new Uint8Array(Object.values(data['secret']));
+      if(PWSession &&  sharedSecret){
+          var shscr = sharedSecret
           const nonce = nacl.randomBytes(nacl.box.nonceLength);
  
           var encr_json = nacl.box.after(
@@ -152,10 +142,11 @@ export const CustomConnector = () =>{
           const urlz = `https://phantom.app/ul/v1/disconnect?${params.toString()}`;
           
           window.location.href = urlz
-
+          setPWPublicKey(null)
+          document.getElementById("idg").innerHTML = ""
+          document.cookie=`phantom_addr=;`;
         }
-      }
-     
+          
     }
 
     const connect = ()=>{
@@ -168,25 +159,18 @@ export const CustomConnector = () =>{
       });
    
       const url = `https://phantom.app/ul/v1/connect?${params.toString()}`;
-  
       window.location.href = url
 
     }
-
+   
     if(PWPublicKey != null){
       document.getElementById("idg").innerHTML = PWPublicKey
     }
     return (
       <div>
-      
-        {
-          PWPublicKey != null ? (
-            <button class="wallet-button disconnect-button" onClick={disconnect}>Disconnect Phantom</button>
-          ):(
-            <button class="wallet-button connect-button" onClick={connect}>Connect Phantom</button>
-          )
-        }
-          <p class="idg">Session ID: {sessionId}</p>
+        <button class="wallet-button connect-button" onClick={connect} >Connect Phantom</button><br></br>
+        <button class="wallet-button disconnect-button" onClick={disconnect} >Disconnect Phantom</button>
+        <p class="idg">Session ID: {sessionId}</p>
       </div>
     )
   

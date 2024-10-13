@@ -91,6 +91,7 @@ export function WalletConnect({children}){
 )
 }
 
+
 export function ConnectTelegramWallet(){
 
   const wallet = useTonWallet();   
@@ -120,6 +121,20 @@ const TelegramInit = () => {
   return null;
 };
 
+function getCookieValue(cookieName) {
+  const name = cookieName + "=";
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const cookieArray = decodedCookie.split(';');
+  
+  for(let i = 0; i < cookieArray.length; i++) {
+      let cookie = cookieArray[i].trim();
+      if (cookie.indexOf(name) === 0) {
+          return cookie.substring(name.length, cookie.length);
+      }
+  }
+  return null;
+}
+
 function App() {
 
   TelegramInit()
@@ -127,32 +142,9 @@ function App() {
   const sol_endpoint = useMemo(() => clusterApiUrl(sol_network), [sol_network]);
   const sol_wallets = useMemo(() => [ new PhantomWalletAdapter({
   })], [sol_network]);
-
-  const deeplink = window.location
-  const [sol_estb,setestb] = useState(false);
-  const [phaddr,setphaddr ] = useState("");
   
-  /*
-  useEffect(()=>{
-    const url = new URL(deeplink)
-
-    if(url.searchParams.has("tgWebAppStartParam")){
-      if(url.searchParams.get("tgWebAppStartParam").toString().includes("onConnectApp")){        
-     
-        var data = url.searchParams.get("tgWebAppStartParam").replace("onConnectApp","")
-
-        data = bs58.decode(data)
-        data = JSON.parse(String.fromCharCode.apply(null, data))
-
-        setphaddr(data['public_key'].toString())
-        setestb(true)
-
-      }
-    }
-    
-
-  },[deeplink])
-  */
+  const pw_remembered = getCookieValue("phantom_addr")
+  
   return (
     
     <TonConnectUIProvider manifestUrl="https://suibex.github.io/TGWallet_FrontEnd/tonconnect-manifest.json">
@@ -161,7 +153,15 @@ function App() {
         <WalletModalProvider>
             <div className="App">
               <header className="App-header">  
-              <h1 class="idg" id="idg" >-</h1>            <br></br>
+              {
+                pw_remembered ? (
+                  <h1 class="idg" id="idg" >{pw_remembered}</h1>
+                ):(
+                  <h1 class="idg" id="idg" >-</h1>
+                )
+              }
+
+             <br></br>
               <ConnectTelegramWallet/>
               <br></br>
               <WalletConnect/>
