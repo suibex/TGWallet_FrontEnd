@@ -8,7 +8,7 @@ import { arbitrum, mainnet } from '@reown/appkit/networks'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { useAccount,useConfig } from "wagmi";
-import { CustomConnector } from './CustomConnector';
+import { CustomConnector } from './CustomPhantomConnector';
 import React, {useMemo } from 'react';
 import { ConnectionProvider, WalletProvider,useWallet } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork} from '@solana/wallet-adapter-base';
@@ -114,69 +114,89 @@ export function ConnectTelegramWallet(){
 
 }
 const TelegramInit = () => {
+  
+  window.Telegram.WebApp.ready();
+  window.Telegram.WebApp.MainButton.text = "Send 0.2 ETH"
+  window.Telegram.WebApp.MainButton.show()
+  window.Telegram.WebApp.MainButton.onclick = ()=>{
+    
+  }
+
+  const [auth,setAuth] = useState(false)
+
   useEffect(() => {
-    window.Telegram.WebApp.ready();
+    var auth_data = window.Telegram.WebApp.initData
+    if(auth_data != ""){
+     
+      auth_data = new URLSearchParams(decodeURIComponent(auth_data))
+      
+      var auth_data_dict = {}
+
+      for (const key of auth_data.keys()) {
+        console.log(key,auth_data.get(key))
+        auth_data_dict[key] = auth_data.get(key)
+      }
+    
+      fetch("/checkAuthentication",{
+        method:"POST",
+        body:JSON.stringify(auth_data_dict),
+        headers:{
+          'Content-Type':"application/json"
+        }
+      }).then((data)=>{
+        if(data.status == 200){
+          setAuth(true)
+
+        }
+      })
+    }
   }, []);
 
-  return null;
+  return auth;
 };
-
-function getCookieValue(cookieName) {
-  const name = cookieName + "=";
-  const decodedCookie = decodeURIComponent(document.cookie);
-  const cookieArray = decodedCookie.split(';');
-  
-  for(let i = 0; i < cookieArray.length; i++) {
-      let cookie = cookieArray[i].trim();
-      if (cookie.indexOf(name) === 0) {
-          return cookie.substring(name.length, cookie.length);
-      }
-  }
-  return null;
-}
 
 function App() {
 
-  TelegramInit()
+  const success_auth = TelegramInit()
+
+  window.Telegram.WebApp.MainButton.text = "Send 0.2 ETH"
+  window.Telegram.WebApp.MainButton.show()
+  window.Telegram.WebApp.MainButton.onclick = ()=>{
+    alert("HAHA")
+  }
+
   const sol_network = WalletAdapterNetwork.Testnet;
   const sol_endpoint = useMemo(() => clusterApiUrl(sol_network), [sol_network]);
   const sol_wallets = useMemo(() => [ new PhantomWalletAdapter({
   })], [sol_network]);
   
-  const pw_remembered = getCookieValue("phantom_addr")
-  
   return (
-    
-    <TonConnectUIProvider manifestUrl="https://suibex.github.io/TGWallet_FrontEnd/tonconnect-manifest.json">
-      <ConnectionProvider endpoint={sol_endpoint}>
-      <WalletProvider wallets={sol_wallets} >
-        <WalletModalProvider>
-            <div className="App">
-              <header className="App-header">  
-              {
-                pw_remembered ? (
-                  <h1 class="idg" id="idg" >{pw_remembered}</h1>
-                ):(
-                  <h1 class="idg" id="idg" >-</h1>
-                )
-              }
-
-             <br></br>
-              <ConnectTelegramWallet/>
-              <br></br>
-              <WalletConnect/>
-              <br></br>
-              <CustomConnector/>
-              
-              </header>
-            </div>
-          
-        </WalletModalProvider>
-      </WalletProvider>
-      </ConnectionProvider>
-      </TonConnectUIProvider>
-      
+    <>
+      {success_auth === true ? (
+        <TonConnectUIProvider manifestUrl="https://suibex.github.io/TGWallet_FrontEnd/tonconnect-manifest.json">
+          <ConnectionProvider endpoint={sol_endpoint}>
+            <WalletProvider wallets={sol_wallets}>
+              <WalletModalProvider>
+                <div className="App">
+                  <header className="App-header">
+                    <h1 className="idg" id="idg">{window.Telegram.WebApp.initData}</h1>
+                    <br />
+                    <ConnectTelegramWallet />
+                    <br />
+                    <WalletConnect />
+                    <br />
+                  </header>
+                </div>
+              </WalletModalProvider>
+            </WalletProvider>
+          </ConnectionProvider>
+        </TonConnectUIProvider>
+      ) : (
+        <h1>Forbidden</h1>
+      )}
+    </>
   );
+  
   
 }
 

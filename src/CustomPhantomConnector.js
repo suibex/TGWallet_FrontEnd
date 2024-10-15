@@ -32,7 +32,7 @@ const solanaWeb3 = require('@solana/web3.js');
 const util = require('tweetnacl-util');
 const { decodeUTF8, encodeBase64, decodeBase64, encodeUTF8 } = require('tweetnacl-util');
 
-const PROXY_URL = "https://7957-176-108-47-50.ngrok-free.app"
+const PROXY_URL = "https://554c-178-148-213-170.ngrok-free.app"
 
 function getRandomInt(min, max) {
   min = Math.ceil(min);
@@ -41,7 +41,8 @@ function getRandomInt(min, max) {
 }
 
 export const CustomConnector = () =>{
-    
+
+
     //security threat --> FIX!
     //const seedString = '8afae8729b48d24f94c6d6db41748bda3c62d6882f3d5b7d5f9c86e638b9a89f'
     //console.log(seedString)
@@ -142,6 +143,7 @@ export const CustomConnector = () =>{
           const urlz = `https://phantom.app/ul/v1/disconnect?${params.toString()}`;
           
           window.location.href = urlz
+          
           setPWPublicKey(null)
           document.getElementById("idg").innerHTML = ""
           document.cookie=`phantom_addr=;`;
