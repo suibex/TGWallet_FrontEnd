@@ -6,6 +6,7 @@
     "@babel/core": "^7.16.0",
     "@coinbase/wallet-sdk": "^4.0.3",
     "@ethersproject/sha2": "^5.7.0",
+    "@metamask/sdk-react": "^0.29.2",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
     "@reown/appkit": "^1.1.0",
     "@reown/appkit-adapter-ethers": "^1.1.0",
@@ -24,6 +25,7 @@
     "@testing-library/user-event": "^13.5.0",
     "@tonconnect/ui": "^2.0.9",
     "@tonconnect/ui-react": "^2.0.9",
+    "@walletconnect/client": "^1.8.0",
     "@walletconnect/modal-sign-react": "^2.5.8",
     "axios": "^1.7.7",
     "babel-jest": "^27.4.2",
@@ -99,6 +101,11 @@
     "test": "node scripts/test.js",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
+  },
+  "browser": {
+    "http": false,
+    "https": false,
+    "os": false
   },
   "proxy": "http://localhost:3001",
   "eslintConfig": {

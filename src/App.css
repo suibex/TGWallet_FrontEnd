@@ -106,6 +106,77 @@
   word-wrap: break-word; /* Fallback for older browsers */
 }
 
+/* Main input field styles */
+.wallet-input {
+  width: 50%;
+  max-width: 400px;
+  padding: 15px;
+  font-size: 16px;
+  font-family: 'Roboto', sans-serif;
+  border: 2px solid #0088cc; /* Telegram blue */
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  color: #333;
+  outline: none;
+  transition: all 0.3s ease;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Placeholder text style */
+.wallet-input::placeholder {
+  color: #aaa;
+  font-style: italic;
+}
+
+/* Hover effect */
+.wallet-input:hover {
+  border-color: #006bb3; /* Darker Telegram blue */
+  box-shadow: 0px 6px 14px rgba(0, 136, 204, 0.2);
+}
+
+/* Focus effect */
+.wallet-input:focus {
+  border-color: #00aaff; /* Bright blue */
+  background-color: #ffffff;
+  box-shadow: 0px 6px 14px rgba(0, 170, 255, 0.3);
+  color: #000;
+}
+
+/* Add an icon to the input */
+.wallet-input-icon {
+  position: relative;
+}
+
+.wallet-input-icon input {
+  padding-left: 40px; /* Leave space for the icon */
+}
+
+.wallet-input-icon::before {
+  content: url('https://example.com/icon.png'); /* Replace with actual icon URL */
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+
+/* Style for error messages */
+.wallet-input-error {
+  color: red;
+  font-size: 14px;
+  margin-top: 5px;
+  display: none;
+}
+
+/* Show error message */
+.wallet-input-error.show {
+  display: block;
+}
+
+
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

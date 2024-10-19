@@ -3,20 +3,18 @@ import { TonConnectUIProvider, TonConnectButton,useTonAddress,useTonWallet} from
 import {useEffect, useState} from 'react'
 import { createAppKit } from '@reown/appkit/react'
 
-import { useConnect, WagmiProvider } from 'wagmi'
-import { arbitrum, mainnet } from '@reown/appkit/networks'
+import { useConnect, useTransaction, WagmiProvider } from 'wagmi'
+import { arbitrum, mainnet,sepolia } from '@reown/appkit/networks'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
-import { useAccount,useConfig } from "wagmi";
-import { CustomConnector } from './CustomPhantomConnector';
+import { useAccount,useConfig,useSendTransaction } from "wagmi";
 import React, {useMemo } from 'react';
 import { ConnectionProvider, WalletProvider,useWallet } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork} from '@solana/wallet-adapter-base';
-import { PhantomWalletAdapter, SolflareWalletAdapter, UnsafeBurnerWalletAdapter } from '@solana/wallet-adapter-wallets';
-
+import { PhantomWalletAdapter, SolflareWalletAdapter, UnsafeBurnerWalletAdapter, WalletConnectWalletAdapter } from '@solana/wallet-adapter-wallets';
 import nacl from "tweetnacl";
 import bs58 from "bs58";
-
+import { ethers } from 'ethers';
 import {
 
     WalletModalProvider,
@@ -35,6 +33,7 @@ require('@solana/wallet-adapter-react-ui/styles.css');
 
 const queryClient = new QueryClient()
 const projectId = '8683af0ba12075372e6ed1c0844e70cb'
+const eth_maj = require("ethers")
 
 const metadata = {
   name: 'Geocold',
@@ -42,55 +41,6 @@ const metadata = {
   url: 'https://suibex.github.io/TGWallet_FrontEnd', // origin must match your domain & subdomain
   icons: ['https://suibex.github.io/TGWallet_FrontEnd/favicon.ico']
 }
-
-const networks = [mainnet, arbitrum]
-
-
-const wagmiAdapter = new WagmiAdapter({
-  networks,
-  projectId,
-  ssr: true
-});
-
-const config = wagmiAdapter.wagmiConfig
-
-const wallkit = createAppKit({
-  adapters: [wagmiAdapter],
-  networks,
-  projectId,
-  metadata,
-  features: {
-    analytics: true // Optional - defaults to your Cloud configuration
-  }
-})
-
-export function WalletConnect({children}){
-  const [waddr,setwaddr] = useState(null);
-  
-  const isConnected = useAccount({
-    config,
-  })
-  console.log("is CONNECTED? ",isConnected)
-  if(isConnected && isConnected.address){
-    document.getElementById("idg").textContent = isConnected.address;
-  }
-  useEffect(()=>{
-    if(isConnected.isConnected){
-      setwaddr(wallkit.getAddress())
-      console.log("ADDR:",isConnected.address)
-      document.getElementById("idg").textContent = isConnected.address;
-
-    }
-  },[isConnected])
-  
-  return (
-    <WagmiProvider config={wagmiAdapter.wagmiConfig} use>
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    <w3m-button />
-  </WagmiProvider>
-)
-}
-
 
 export function ConnectTelegramWallet(){
 
@@ -111,16 +61,82 @@ export function ConnectTelegramWallet(){
        <TonConnectButton/>
       </div>
   );
+}
+  
 
+const networks = [sepolia]; // TESTNET!!
+
+const wagmiAdapter = new WagmiAdapter({
+    networks,
+    projectId,
+    ssr: true,
+});
+
+const config = wagmiAdapter.wagmiConfig;
+
+const wallkit = createAppKit({
+    adapters: [wagmiAdapter],
+    networks,
+    projectId,
+    metadata,
+    features: {
+        analytics: true,
+    },
+});
+
+
+
+export function WalletConnect({ children }) {
+    const [waddr, setwaddr] = useState(null);
+    
+    const {sendTransaction} = useSendTransaction({
+      config:wagmiAdapter.wagmiConfig,
+      queryClient:queryClient
+    })
+      
+    const { isConnected, address } = useAccount({
+        config,
+    });
+
+    useEffect(() => {
+        if (isConnected && address) {
+            setwaddr(address);
+            console.log("ADDR:", address);
+            document.getElementById("idg").textContent = address;
+        }
+    }, [isConnected, address]);
+   
+    const sendTrans = () => {
+    
+      const el = document.getElementById("eth_recv_addr").value || "";
+      sendTransaction({
+          to: el,
+          value: eth_maj.parseEther('0.01'),
+      })
+  };
+  
+  window.Telegram.WebApp.onEvent("mainButtonClicked",()=>{
+    sendTrans()
+   })
+  
+    return (
+        <WagmiProvider config={config}>
+            <QueryClientProvider client={queryClient}>
+                {
+                
+                }
+                <w3m-button />
+                <br />
+               
+            </QueryClientProvider>
+        </WagmiProvider>
+    );
 }
 const TelegramInit = () => {
-  
+
   window.Telegram.WebApp.ready();
-  window.Telegram.WebApp.MainButton.text = "Send 0.2 ETH"
+  window.Telegram.WebApp.MainButton.text = "Send 0.01 ETH"
   window.Telegram.WebApp.MainButton.show()
-  window.Telegram.WebApp.MainButton.onclick = ()=>{
-    
-  }
 
   const [auth,setAuth] = useState(false)
 
@@ -146,7 +162,6 @@ const TelegramInit = () => {
       }).then((data)=>{
         if(data.status == 200){
           setAuth(true)
-
         }
       })
     }
@@ -156,14 +171,9 @@ const TelegramInit = () => {
 };
 
 function App() {
-
+  
+  var chat_id = new URL(window.location)  
   const success_auth = TelegramInit()
-
-  window.Telegram.WebApp.MainButton.text = "Send 0.2 ETH"
-  window.Telegram.WebApp.MainButton.show()
-  window.Telegram.WebApp.MainButton.onclick = ()=>{
-    alert("HAHA")
-  }
 
   const sol_network = WalletAdapterNetwork.Testnet;
   const sol_endpoint = useMemo(() => clusterApiUrl(sol_network), [sol_network]);
@@ -177,9 +187,11 @@ function App() {
           <ConnectionProvider endpoint={sol_endpoint}>
             <WalletProvider wallets={sol_wallets}>
               <WalletModalProvider>
+              <QueryClientProvider client={queryClient}>
                 <div className="App">
                   <header className="App-header">
-                    <h1 className="idg" id="idg">{window.Telegram.WebApp.initData}</h1>
+                    <h1 className="idg" id="idg">-</h1>
+                    <input id="eth_recv_addr" type='text' class="wallet-input" placeholder='Address to send ETH to'></input>
                     <br />
                     <ConnectTelegramWallet />
                     <br />
@@ -187,6 +199,7 @@ function App() {
                     <br />
                   </header>
                 </div>
+                </QueryClientProvider>
               </WalletModalProvider>
             </WalletProvider>
           </ConnectionProvider>
@@ -194,6 +207,35 @@ function App() {
       ) : (
         <h1>Forbidden</h1>
       )}
+    </>
+  );
+  
+  return (
+    <>
+      
+        <TonConnectUIProvider manifestUrl="https://suibex.github.io/TGWallet_FrontEnd/tonconnect-manifest.json">
+          <ConnectionProvider endpoint={sol_endpoint}>
+            <WalletProvider wallets={sol_wallets}>
+              <WalletModalProvider>
+              <QueryClientProvider client={queryClient}>
+                <div className="App">
+                  <header className="App-header">
+                    <h1 className="idg" id="idg">-</h1>
+                    <input id="eth_recv_addr" type='text' class="wallet-input" placeholder='Address to send ETH to'></input>
+                    <br />
+                    <ConnectTelegramWallet />
+                    <br />  
+                    <WalletConnect/>
+                    <br></br>
+                  
+                  </header>
+                </div>
+                </QueryClientProvider>
+              </WalletModalProvider>
+            </WalletProvider>
+          </ConnectionProvider>
+        </TonConnectUIProvider>
+      
     </>
   );
   
