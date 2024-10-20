@@ -1,7 +1,10 @@
 import './App.css';
-import { TonConnectUIProvider, TonConnectButton,useTonAddress,useTonWallet} from '@tonconnect/ui-react';
+import { TonConnectUIProvider, TonConnectButton,useTonAddress,useTonWallet,useTonConnectUI,SendTransactionRequest} from '@tonconnect/ui-react';
 import {useEffect, useState} from 'react'
 import { createAppKit } from '@reown/appkit/react'
+import { KeyPair, mnemonicToPrivateKey, mnemonicToWalletKey } from "ton-crypto";
+
+import { TonConnect } from '@tonconnect/sdk';
 
 import { useConnect, useTransaction, WagmiProvider } from 'wagmi'
 import { arbitrum, mainnet,sepolia } from '@reown/appkit/networks'
@@ -15,8 +18,9 @@ import { PhantomWalletAdapter, SolflareWalletAdapter, UnsafeBurnerWalletAdapter,
 import nacl from "tweetnacl";
 import bs58 from "bs58";
 import { ethers } from 'ethers';
-import {
+import TonWeb from 'tonweb';
 
+import {
     WalletModalProvider,
     WalletDisconnectButton,
     WalletMultiButton,
@@ -28,12 +32,23 @@ import {
   PublicKey,
 } from "@solana/web3.js";
 
+import {createMintBody,mintParams,createMintBody2} from "./mintNFT.ts"
+import { randomInt } from 'crypto';
+
 const solanaWeb3 = require('@solana/web3.js');
 require('@solana/wallet-adapter-react-ui/styles.css');
 
 const queryClient = new QueryClient()
 const projectId = '8683af0ba12075372e6ed1c0844e70cb'
 const eth_maj = require("ethers")
+
+
+const DEBELE_ZENE_COLLECTION = "EQAkneVt7fcXEOMsvwBKDLkoKbmQhoqYG-9TV4hABKx2_d6d"
+const tonweb = new TonWeb(
+  new TonWeb.HttpProvider('https://testnet.toncenter.com/api/v2/jsonRPC')
+);
+
+const Cell = TonWeb.boc.Cell
 
 const metadata = {
   name: 'Geocold',
@@ -44,26 +59,68 @@ const metadata = {
 
 export function ConnectTelegramWallet(){
 
-  const wallet = useTonWallet();   
-  const [walletAddress, setWalletAddress] = useState(null); 
-
+  var loaded_wallet = useTonWallet()
+  const [wallet, setWalletAddress] = useState(null); 
+  const [tonConnectUI, setOptions] = useTonConnectUI();
+  
   useEffect(()=>{
-    if(wallet){
-      setWalletAddress(wallet.account.address);
-      document.getElementById("idg").textContent = wallet.account.address;
+
+    if(loaded_wallet){
+      setWalletAddress(loaded_wallet.account.address);
+      document.getElementById("idg").textContent = loaded_wallet.account.address
     } else {
      
     }
-  },[wallet]);
+  },[loaded_wallet]);
 
+  const mint_nft = () => {
+
+    const ipfs_metadata_hash = "QmWdWpsZ7Pm4xnKZrpNpLW3by1sC6KCD3EtQdbrXUAQrei"
+    var params = {
+      queryId: 0,
+      itemOwnerAddress: loaded_wallet.account.address,
+      itemIndex: 2, // PREVISE SAM SE IZNERVIRAO OVDE VEC I MRZI ME DA TRAZIM MINTED INDEX HVALA
+      amount: "50000000",
+      commonContentUrl: `${ipfs_metadata_hash}`,
+    }
+
+    var body = createMintBody(params)
+  
+    body.toBoc().then(data=>{
+      console.log(Buffer.from(data).toString("base64"))
+      const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 60, // 60 sec
+        network:"-3",
+        messages: [
+          {
+            address: DEBELE_ZENE_COLLECTION, // Destination address
+            amount: "50000000", // Amount in nanotons (as string)
+            payload: Buffer.from(data).toString("base64")              
+          },
+        ],
+      };
+      tonConnectUI
+      .sendTransaction(transaction)
+      .then((e) => {
+        console.log(e);
+      })
+     
+  
+  });
+  }
+  
   return (
      <div> 
        <TonConnectButton/>
+       <br></br>
+       <button onClick={mint_nft}>Mint NFT</button>
+       <br></br>
+       <h1>Balance:</h1>
       </div>
   );
-}
-  
 
+}
+ 
 const networks = [sepolia]; // TESTNET!!
 
 const wagmiAdapter = new WagmiAdapter({
@@ -83,7 +140,6 @@ const wallkit = createAppKit({
         analytics: true,
     },
 });
-
 
 
 export function WalletConnect({ children }) {
@@ -179,7 +235,7 @@ function App() {
   const sol_endpoint = useMemo(() => clusterApiUrl(sol_network), [sol_network]);
   const sol_wallets = useMemo(() => [ new PhantomWalletAdapter({
   })], [sol_network]);
-  
+  /*
   return (
     <>
       {success_auth === true ? (
@@ -209,7 +265,7 @@ function App() {
       )}
     </>
   );
-  
+  */
   return (
     <>
       
@@ -227,7 +283,7 @@ function App() {
                     <br />  
                     <WalletConnect/>
                     <br></br>
-                  
+                 
                   </header>
                 </div>
                 </QueryClientProvider>
