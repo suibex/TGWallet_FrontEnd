@@ -42,8 +42,8 @@ const queryClient = new QueryClient()
 const projectId = '8683af0ba12075372e6ed1c0844e70cb'
 const eth_maj = require("ethers")
 
-
 const DEBELE_ZENE_COLLECTION = "EQAkneVt7fcXEOMsvwBKDLkoKbmQhoqYG-9TV4hABKx2_d6d"
+const DEBELE_ZENE_METADATA_HASH = "QmWdWpsZ7Pm4xnKZrpNpLW3by1sC6KCD3EtQdbrXUAQrei"
 const tonweb = new TonWeb(
   new TonWeb.HttpProvider('https://testnet.toncenter.com/api/v2/jsonRPC')
 );
@@ -68,46 +68,65 @@ export function ConnectTelegramWallet(){
     if(loaded_wallet){
       setWalletAddress(loaded_wallet.account.address);
       document.getElementById("idg").textContent = loaded_wallet.account.address
-    } else {
-     
     }
+
   },[loaded_wallet]);
 
   const mint_nft = () => {
 
-    const ipfs_metadata_hash = "QmWdWpsZ7Pm4xnKZrpNpLW3by1sC6KCD3EtQdbrXUAQrei"
-    var params = {
-      queryId: 0,
-      itemOwnerAddress: loaded_wallet.account.address,
-      itemIndex: 2, // PREVISE SAM SE IZNERVIRAO OVDE VEC I MRZI ME DA TRAZIM MINTED INDEX HVALA
-      amount: "50000000",
-      commonContentUrl: `${ipfs_metadata_hash}`,
-    }
-
-    var body = createMintBody(params)
-  
-    body.toBoc().then(data=>{
-      console.log(Buffer.from(data).toString("base64"))
-      const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 60, // 60 sec
-        network:"-3",
-        messages: [
-          {
-            address: DEBELE_ZENE_COLLECTION, // Destination address
-            amount: "50000000", // Amount in nanotons (as string)
-            payload: Buffer.from(data).toString("base64")              
-          },
-        ],
-      };
-      tonConnectUI
-      .sendTransaction(transaction)
-      .then((e) => {
-        console.log(e);
+    fetch('/getNFTCollectionIdx', {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        addr: DEBELE_ZENE_COLLECTION
       })
-     
-  
-  });
-  }
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then(nftIdx => {
+
+        var params = {
+          queryId: 0,
+          itemOwnerAddress: loaded_wallet.account.address,
+          itemIndex: nftIdx.idx,
+          amount: "50000000",
+          commonContentUrl: `${DEBELE_ZENE_METADATA_HASH}`,
+        }
+    
+        var body = createMintBody(params)
+      
+        body.toBoc().then(data=>{
+      
+          const transaction = {
+            validUntil: Math.floor(Date.now() / 1000) + 60,
+            network:"-3",
+            messages: [
+              {
+                address: DEBELE_ZENE_COLLECTION, // Destination address
+                amount: "50000000", // Amount in nanotons (as string)
+                payload: Buffer.from(data).toString("base64")              
+              },
+            ],
+          };
+          tonConnectUI
+          .sendTransaction(transaction)
+          .then((e) => {
+            console.log(e);
+          })
+        })
+         
+      })
+      .catch(error => {
+        console.error('Error fetching NFT index:', error);
+      });
+
+}
   
   return (
      <div> 
@@ -121,7 +140,7 @@ export function ConnectTelegramWallet(){
 
 }
  
-const networks = [sepolia]; // TESTNET!!
+const networks = [sepolia]; 
 
 const wagmiAdapter = new WagmiAdapter({
     networks,
@@ -157,7 +176,7 @@ export function WalletConnect({ children }) {
     useEffect(() => {
         if (isConnected && address) {
             setwaddr(address);
-            console.log("ADDR:", address);
+ 
             document.getElementById("idg").textContent = address;
         }
     }, [isConnected, address]);
